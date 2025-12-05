@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>StudentDashboard</class>
+ <widget class="QWidget" name="StudentDashboard">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>850</width>
+    <height>500</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Student Dashboard</string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <item>
+    <widget class="QLabel" name="titleLabel">
+     <property name="text">
+      <string>&lt;b&gt;Student Dashboard&lt;/b&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignHCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="coursesLabel">
+     <property name="text">
+      <string>Available Courses:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="courseTable">
+     <column>
+      <property name="text">
+       <string>Course Code</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Course Name</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Credits</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Capacity</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="buttonLayout">
+     <item>
+      <widget class="QPushButton" name="addCourseButton">
+       <property name="text">
+        <string>Add Course</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="removeCourseButton">
+       <property name="text">
+        <string>Remove Course</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="finishButton">
+       <property name="text">
+        <string>Finish Registration</string>
+       </property>
+       <property name="styleSheet">
+        <string>background-color: #4CAF50; color: white; font-weight: bold;</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
