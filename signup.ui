@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Sign Up</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label_header">
+     <property name="text">
+      <string>Student Registration</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_name"><property name="text"><string>Full Name</string></property></widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="NameInput"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_id"><property name="text"><string>Student ID</string></property></widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="IdInput"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_email"><property name="text"><string>Email</string></property></widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="emailInput"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_prog"><property name="text"><string>Program</string></property></widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="programInput"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_lvl"><property name="text"><string>Level</string></property></widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="levelInput"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_pass"><property name="text"><string>Password</string></property></widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="passwordInput">
+     <property name="echoMode">
+      <enum>QLineEdit::Password</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="signupButton">
+     <property name="text">
+      <string>Create Account</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
