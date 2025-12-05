@@ -54,18 +54,25 @@ class signup(QDialog):
         loadUi("ui/signup.ui",self)
         self.signupButton.clicked.connect(self.signup)
 
-    def signup(self):
-        # 1. سحب البيانات من الحقول
+        def signup(self):
+        # سحب البيانات
         name = self.NameInput.text()
         student_id = self.IdInput.text()
         email = self.emailInput.text()
-        program = self.programInput.text()
-        level= self.levelInput.text()
         password = self.passwordInput.text()
-        # تحويل المستوى لرقم (مهم عشان الداتا بيس)
+
+        # 🟢 التعديل الجديد: سحب البيانات من القائمة المنسدلة
+        program = self.programInput.currentText()
+        level_text = self.levelInput.currentText()
+
+        # التحقق من الحقول الفارغة
+        if not (name and student_id and email and password):
+            print("Please fill all fields") # أو استخدم QMessageBox
+            return
+
         try:
             # تحويل المستوى لرقم
-            level_int = int(level)
+            level_int = int(level_text)
 
             # 1. حفظ بيانات الطالب
             new_student = Student(student_id=student_id, name=name, email=email, program=program, level=level_int)
@@ -77,13 +84,11 @@ class signup(QDialog):
             print("تم التسجيل بنجاح!")
             
             # العودة لشاشة الدخول
-            #login_window = Login()
-            #self.widget.addWidget(login_window)
-            #self.widget.setCurrentIndex(self.widget.currentIndex()+1)
             self.widget.removeWidget(self)
 
         except Exception as e:
             print("حدث خطأ:", e)
+
 #app = QtWidgets.QApplication(sys.argv)
 #window = Login()
 #widget=QtWidgets.QStackedWidget()
