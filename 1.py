@@ -1,70 +1,46 @@
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget,
-    QVBoxLayout, QHBoxLayout, QLabel,
-    QPushButton, QTableWidget, QTableWidgetItem,QMessageBox,QInputDialog
-)
 import sys
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QWidget, QMessageBox, QTableWidgetItem, QInputDialog
+from PyQt5.uic import loadUi
 from Data_Base import get_connection
-
-
 
 class AdminDashboard(QWidget):
     def __init__(self):
-        super().__init__()
-
-        main_layout = QVBoxLayout()
-        header = QLabel("Admin Dashboard - Course Management")
-        header.setStyleSheet("font-size: 18px; font-weight: bold;")
-        main_layout.addWidget(header)
-
-        self.course_table = QTableWidget(0, 4)
-        self.course_table.setHorizontalHeaderLabels(
-            ["Course Code", "Course Name", "Credit Hours", "Capacity"]
-        )
-        main_layout.addWidget(self.course_table)
-
-        btn_layout = QHBoxLayout()
-        self.btn_add = QPushButton("Add Course")
-        self.btn_edit = QPushButton("Edit Selected")
-        self.btn_delete = QPushButton("Delete Selected")
-        self.btn_refresh = QPushButton("Refresh")
-
-        btn_layout.addWidget(self.btn_add)
-        btn_layout.addWidget(self.btn_edit)
-        btn_layout.addWidget(self.btn_delete)
-        btn_layout.addWidget(self.btn_refresh)
-
-        main_layout.addLayout(btn_layout)
-        self.setLayout(main_layout)
-
-        self.btn_add.clicked.connect(self.add_course)
-        self.btn_edit.clicked.connect(self.edit_course_dummy)
-        self.btn_delete.clicked.connect(self.delete_course_dummy)
-        self.btn_refresh.clicked.connect(self.load_courses_dummy)
-
-        self.load_courses_dummy()
-
-    def load_courses_dummy(self):
-        self.course_table.setRowCount(0) 
+        super(AdminDashboard, self).__init__()
+        # 1. تحميل ملف التصميم لتوحيد العمل مع باقي المشروع
+        loadUi("ui/Admindashboard.ui", self)
         
-        conn = get_connection() 
+        # تنسيق الجدول
+        self.course_table.setColumnWidth(0, 100)
+        self.course_table.setColumnWidth(1, 250)
+        
+        # 2. ربط الأزرار بالدوال (بأسمائها الصحيحة)
+        self.btn_add.clicked.connect(self.add_course)
+        self.btn_refresh.clicked.connect(self.load_courses)
+        self.btn_delete.clicked.connect(self.delete_course)
+        self.btn_edit.clicked.connect(self.edit_course)
+        
+        self.load_courses()
+
+    def load_courses(self):
+        """سحب المواد وعرضها في الجدول"""
+        self.course_table.setRowCount(0)
+        conn = get_connection()
         if conn:
             cursor = conn.cursor()
             cursor.execute("SELECT course_code, name, credits, max_capacity FROM courses")
             rows = cursor.fetchall()
             
             self.course_table.setRowCount(len(rows))
-            for i, row_data in enumerate(rows):
-                self.course_table.setItem(i, 0, QTableWidgetItem(str(row_data[0])))
-                self.course_table.setItem(i, 1, QTableWidgetItem(str(row_data[1])))
-                self.course_table.setItem(i, 2, QTableWidgetItem(str(row_data[2])))
-                self.course_table.setItem(i, 3, QTableWidgetItem(str(row_data[3])))
+            for row_idx, row_data in enumerate(rows):
+                for col_idx, data in enumerate(row_data):
+                    self.course_table.setItem(row_idx, col_idx, QTableWidgetItem(str(data)))
             conn.close()
 
     def add_course(self):
-        """إضافة مادة جديدة + ربطها بالخطة الدراسية"""
+        """إضافة مادة جديدة + ربطها بالخطة والشعب"""
         
-        # 1. طلب البيانات الأساسية للمادة
+        # طلب البيانات
         code, ok1 = QInputDialog.getText(self, "إضافة مادة", "كود المادة (مثال: COE310):")
         if not ok1 or not code: return
 
@@ -77,34 +53,31 @@ class AdminDashboard(QWidget):
         capacity, ok4 = QInputDialog.getInt(self, "إضافة مادة", "سعة القاعة:", 30, 1, 100)
         if not ok4: return
 
-        # 2. 🟢 الإضافة الجديدة: طلب بيانات الخطة الدراسية
-        # نطلب البرنامج (Computer, Power, etc.)
+        # طلب بيانات الخطة (كما فعلت في كودك الممتاز)
         program, ok5 = QInputDialog.getItem(self, "الخطة الدراسية", "تابع لأي تخصص؟", 
                                           ["Computer", "Communications", "Power", "Biomedical"], 0, False)
         if not ok5: return
 
-        # نطلب المستوى (1-10)
         level, ok6 = QInputDialog.getInt(self, "الخطة الدراسية", "لأي مستوى (1-10)؟", 4, 1, 10)
         if not ok6: return
 
-        # 3. الحفظ في قاعدة البيانات (3 جداول)
         try:
             conn = get_connection()
             cursor = conn.cursor()
             
-            # أ. جدول المواد (courses)
+            # 1. جدول المواد
             cursor.execute("""
                 INSERT INTO courses (course_code, name, credits, lecture_hours, lab_hours, max_capacity)
                 VALUES (?, ?, ?, 3, 0, ?)
             """, (code, name, credits, capacity))
             
-            # ب. جدول الشعب (offerings) - عشان تطلع للطالب
+            # 2. جدول الشعب
             cursor.execute("""
                 INSERT INTO offerings (course_code, term, day_of_week, start_time, end_time, max_capacity)
                 VALUES (?, '202510', 'U', '09:00', '10:00', ?)
             """, (code, capacity))
 
-            # ج. 🟢 جدول الخطة (program_plans) - عشان ينجح فحص check_plan
+            # 3. جدول الخطة
             cursor.execute("""
                 INSERT INTO program_plans (program, level, course_code)
                 VALUES (?, ?, ?)
@@ -113,34 +86,59 @@ class AdminDashboard(QWidget):
             conn.commit()
             conn.close()
             
-            QMessageBox.information(self, "تم", f"تم إضافة المادة {code} إلى خطة {program} - مستوى {level} بنجاح!")
-            self.load_courses() 
+            QMessageBox.information(self, "تم", f"تم إضافة {code} بنجاح!")
+            self.load_courses() # (تم التصحيح: استدعاء الاسم الصحيح)
             
         except Exception as e:
             QMessageBox.warning(self, "خطأ", f"فشل الحفظ: {e}")
 
-    def edit_course_dummy(self):
-        print("Edit Course")
-
-    def delete_course_dummy(self):
+    def delete_course(self):
+        """حذف المادة"""
         row = self.course_table.currentRow()
         if row == -1:
-            QMessageBox.warning(self, "Error", "Select a course first")
+            QMessageBox.warning(self, "تنبيه", "الرجاء اختيار مادة للحذف")
             return
             
         code = self.course_table.item(row, 0).text()
         
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            
-            cursor.execute("DELETE FROM offerings WHERE course_code = ?", (code,))
-            cursor.execute("DELETE FROM courses WHERE course_code = ?", (code,))
-            conn.commit()
-            conn.close()
-            self.load_courses_dummy() 
-            QMessageBox.information(self, "Deleted", f"Course {code} deleted")
-        except Exception as e:
-            QMessageBox.warning(self, "Error", str(e))
+        confirm = QMessageBox.question(self, "تأكيد", f"حذف {code}؟", QMessageBox.Yes | QMessageBox.No)
+        if confirm == QMessageBox.Yes:
+            try:
+                conn = get_connection()
+                cursor = conn.cursor()
+                # الحذف من الجداول المرتبطة أولاً
+                cursor.execute("DELETE FROM program_plans WHERE course_code = ?", (code,))
+                cursor.execute("DELETE FROM offerings WHERE course_code = ?", (code,))
+                cursor.execute("DELETE FROM courses WHERE course_code = ?", (code,))
+                conn.commit()
+                conn.close()
+                self.load_courses()
+                QMessageBox.information(self, "تم", "تم الحذف بنجاح")
+            except Exception as e:
+                QMessageBox.warning(self, "خطأ", str(e))
+
+    def edit_course(self):
+        """تعديل المادة"""
+        row = self.course_table.currentRow()
+        if row == -1:
+            QMessageBox.warning(self, "تنبيه", "اختر مادة للتعديل")
+            return
+
+        code = self.course_table.item(row, 0).text()
+        old_name = self.course_table.item(row, 1).text()
+        
+        new_name, ok = QInputDialog.getText(self, "تعديل", f"الاسم الجديد لـ {code}:", text=old_name)
+        if ok and new_name:
+            try:
+                conn = get_connection()
+                cursor = conn.cursor()
+                cursor.execute("UPDATE courses SET name = ? WHERE course_code = ?", (new_name, code))
+                conn.commit()
+                conn.close()
+                self.load_courses()
+                QMessageBox.information(self, "تم", "تم التحديث")
+            except Exception as e:
+                QMessageBox.warning(self, "خطأ", str(e))
+
 
 
